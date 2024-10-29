@@ -5,6 +5,25 @@ import (
 	"com.mensssy.LabMS/model"
 )
 
+func GetToken(userId string, tokenType string) (string, error) {
+	db := db.SqlDB
+
+	var col string
+	if tokenType == "Mobile" {
+		col = "token_mobile"
+	} else if tokenType == "PC" {
+		col = "token_pc"
+	}
+
+	var token string
+	res := db.Model(&model.UserSecurity{}).Select(col).Where("user_id = ?", userId).First(&token)
+	if res.Error != nil {
+		return "", res.Error
+	} else {
+		return token, nil
+	}
+}
+
 func GetSecurityInfo(userId string) (model.UserSecurity, error) {
 	db := db.SqlDB
 

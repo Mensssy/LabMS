@@ -1,16 +1,13 @@
 package service
 
 import (
-	"crypto/sha256"
-	"encoding/hex"
 	"time"
 
-	"com.mensssy.LabMS/conf"
 	"com.mensssy.LabMS/controller/response"
 	"com.mensssy.LabMS/dao"
 	"com.mensssy.LabMS/model"
+	"com.mensssy.LabMS/util"
 	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt/v5"
 )
 
 func Login(c *gin.Context) {
@@ -27,7 +24,7 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	eUserId := encrypt(userId)
+	eUserId := util.Encrypt(userId)
 	if securityInfo, err := dao.GetSecurityInfo(eUserId); err != nil {
 		//用户不存在
 		c.JSON(response.Internal_Server_Error, response.Body{
@@ -36,11 +33,11 @@ func Login(c *gin.Context) {
 		})
 	} else {
 		//密码加盐哈希
-		ePassword := encrypt(password + securityInfo.Salt)
+		ePassword := util.Encrypt(password + securityInfo.Salt)
 
 		if ePassword == securityInfo.Password {
 			//获取token
-			token := generateToken(userId, device)
+			token := util.GenerateToken(userId, device)
 
 			//更新token
 			if device == "PC" {
@@ -70,28 +67,5 @@ func Login(c *gin.Context) {
 				Data: nil,
 			})
 		}
-	}
-}
-
-func encrypt(data string) string {
-	hasher := sha256.New()
-	hasher.Write([]byte(data))
-	res := hex.EncodeToString(hasher.Sum(nil))
-	return res
-}
-
-func generateToken(userId string, device string) string {
-	claims := jwt.MapClaims{
-		"exp":  time.Now().Add(time.Hour * 2).Unix(),
-		"id":   userId,
-		"type": device,
-	}
-
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-
-	if tokenStr, err := token.SignedString([]byte(conf.TokenKey)); err != nil {
-		return "error"
-	} else {
-		return tokenStr
 	}
 }

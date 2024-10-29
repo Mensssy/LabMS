@@ -4,9 +4,8 @@ import (
 	"time"
 
 	"com.mensssy.LabMS/controller/response"
-	"com.mensssy.LabMS/dao"
-	"com.mensssy.LabMS/model"
 	"com.mensssy.LabMS/service"
+	"com.mensssy.LabMS/util"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
@@ -17,17 +16,6 @@ func GetRouter() *gin.Engine {
 	r.Use(getCors())
 
 	r.POST("/test", func(c *gin.Context) {
-		if err := dao.UpdateSecurityInfo(model.UserSecurity{
-			UserId:      "1",
-			TokenMobile: "1234",
-		}); err != nil {
-			c.JSON(response.Internal_Server_Error, response.Body{
-				Msg:  err.Error(),
-				Data: nil,
-			})
-			return
-		}
-
 		c.JSON(response.OK, response.Body{
 			Msg:  "test succeeded",
 			Data: nil,
@@ -37,14 +25,45 @@ func GetRouter() *gin.Engine {
 	api := r.Group("/api")
 	{
 		api.POST("/login", service.Login)
-		user := api.Group("/users")
+
+		common := api.Group("")
+		common.Use(tokenAuth())
+		user := common.Group("/users")
 		{
-			user.GET("")
+			user.GET("", func(c *gin.Context) {
+				c.JSON(response.OK, response.Body{
+					Msg:  "welcome",
+					Data: nil,
+				})
+			})
 		}
 
 	}
 
 	return r
+}
+
+func tokenAuth() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		msg, err := util.ParseToken(c.GetHeader("Authorization"))
+		if err != nil {
+			c.AbortWithStatusJSON(response.Bad_Request, response.Body{
+				Data: nil,
+				Msg:  err.Error(),
+			})
+			return
+		} else if msg == "invalid_token" {
+			c.AbortWithStatusJSON(response.Unauthorized, response.Body{
+				Data: nil,
+				Msg:  "invalid token",
+			})
+			return
+		}
+
+		//成功 保存userId，方便后续操作
+		c.Set("userId", msg)
+		c.Next()
+	}
 }
 
 func getCors() gin.HandlerFunc {
