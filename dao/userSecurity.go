@@ -24,15 +24,15 @@ func GetToken(userId string, tokenType string) (string, error) {
 	}
 }
 
-func GetSecurityInfo(userId string) (model.UserSecurity, error) {
+func GetSecurityInfo(userId string) (*model.UserSecurity, error) {
 	db := db.SqlDB
 
 	var userSecurityInfo model.UserSecurity
 	res := db.Model(&model.UserSecurity{}).Where("user_id = ?", userId).First(&userSecurityInfo)
 	if res.Error != nil {
-		return userSecurityInfo, res.Error
+		return nil, res.Error
 	}
-	return userSecurityInfo, nil
+	return &userSecurityInfo, nil
 }
 
 func UpdateSecurityInfo(info model.UserSecurity) error {
@@ -45,4 +45,31 @@ func UpdateSecurityInfo(info model.UserSecurity) error {
 	}
 
 	return nil
+}
+
+func CreateUser(info model.UserSecurity) error {
+	db := db.SqlDB
+	tx := db.Begin()
+
+	if tx.Error != nil {
+		return tx.Error
+	}
+
+	//创建用户
+	res := db.Create(&model.User{
+		UserId:   info.UserId,
+		UserName: "BaconSandwich",
+	})
+	if res.Error != nil {
+		db.Rollback()
+		return res.Error
+	}
+	//创建安全信息
+	res = db.Create(&info)
+	if res.Error != nil {
+		db.Rollback()
+		return res.Error
+	}
+
+	return tx.Commit().Error
 }

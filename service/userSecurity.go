@@ -69,3 +69,31 @@ func Login(c *gin.Context) {
 		}
 	}
 }
+
+func Signin(c *gin.Context) {
+	userId := c.PostForm("userId")
+	password := c.PostForm("password")
+
+	salt := util.GetSalt()
+
+	eUserId := util.Encrypt(userId)
+	ePassword := util.Encrypt(password + salt)
+
+	err := dao.CreateUser(model.UserSecurity{
+		UserId:   eUserId,
+		Password: ePassword,
+		Salt:     salt,
+	})
+
+	if err != nil {
+		c.JSON(response.Internal_Server_Error, response.Body{
+			Msg:  "signin failed",
+			Data: err.Error(),
+		})
+	} else {
+		c.JSON(response.OK, response.Body{
+			Msg:  "signin succeeded",
+			Data: nil,
+		})
+	}
+}

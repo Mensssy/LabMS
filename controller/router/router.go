@@ -25,17 +25,14 @@ func GetRouter() *gin.Engine {
 	api := r.Group("/api")
 	{
 		api.POST("/login", service.Login)
+		api.POST("/signin", service.Signin)
 
 		common := api.Group("")
+		//token鉴权后上下文中将存储userId
 		common.Use(tokenAuth())
 		user := common.Group("/users")
 		{
-			user.GET("", func(c *gin.Context) {
-				c.JSON(response.OK, response.Body{
-					Msg:  "welcome",
-					Data: nil,
-				})
-			})
+			user.GET("", service.GetUserInfo)
 		}
 
 	}
