@@ -22,7 +22,7 @@ func initSql() {
 	SqlUserName = "root"
 	SqlPassword = ""
 	SqlProtocol = "@tcp"
-	SqlHost = "127.0.0.1"
+	SqlHost = "120.46.36.230"
 	SqlPort = "3306"
 	SqlName = "LabMS"
 	SqlParam = "charset=utf8mb4&parseTime=True"

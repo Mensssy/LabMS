@@ -15,9 +15,9 @@ func GetRouter() *gin.Engine {
 
 	r.Use(getCors())
 
-	r.POST("/test", func(c *gin.Context) {
+	r.POST("/ping", func(c *gin.Context) {
 		c.JSON(response.OK, response.Body{
-			Msg:  "test succeeded",
+			Msg:  "U GOT ME!!",
 			Data: nil,
 		})
 	})
