@@ -20,7 +20,7 @@ func initMongo() {
 
 func initSql() {
 	SqlUserName = "root"
-	SqlPassword = "02040608"
+	SqlPassword = ""
 	SqlProtocol = "@tcp"
 	SqlHost = "127.0.0.1"
 	SqlPort = "3306"

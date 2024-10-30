@@ -7,6 +7,6 @@ var (
 )
 
 func InitWebConf() {
-	ServerPort = ":8080"
-	TokenKey = "CreamMushroomPasta"
+	ServerPort = ":80"
+	TokenKey = ""
 }

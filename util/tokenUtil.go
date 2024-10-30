@@ -17,7 +17,8 @@ type myClaims struct {
 func GenerateToken(userId string, device string) string {
 	claims := myClaims{
 		RegisteredClaims: jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 2)),
+			// ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Hour * 2)),
+			ExpiresAt: jwt.NewNumericDate(time.Now()),
 		},
 		Id:        userId,
 		TokenType: device,

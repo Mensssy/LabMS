@@ -13,7 +13,7 @@ func GetUserInfo(c *gin.Context) {
 	if err != nil {
 		c.JSON(response.Internal_Server_Error, response.Body{
 			Data: nil,
-			Msg:  err.Error(),
+			Msg:  "userId not exists",
 		})
 	} else {
 		c.JSON(response.OK, response.Body{

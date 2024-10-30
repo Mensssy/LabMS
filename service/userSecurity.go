@@ -28,7 +28,7 @@ func Login(c *gin.Context) {
 	if securityInfo, err := dao.GetSecurityInfo(eUserId); err != nil {
 		//用户不存在
 		c.JSON(response.Internal_Server_Error, response.Body{
-			Msg:  "userId not exists",
+			Msg:  "user not exists",
 			Data: nil,
 		})
 	} else {
