@@ -7,5 +7,6 @@ func SqlMigrate() {
 
 	db.AutoMigrate(&model.User{})
 	db.AutoMigrate(&model.UserSecurity{})
+	db.AutoMigrate(&model.Invoice{})
 
 }

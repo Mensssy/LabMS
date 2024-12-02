@@ -21,9 +21,11 @@ func initMongo() {
 func initSql() {
 	SqlUserName = "root"
 	SqlPassword = ""
+	// SqlPassword = ""
 	SqlProtocol = "@tcp"
-	SqlHost = "120.46.36.230"
+	// SqlHost = ""
+	SqlHost = "127.0.0.1"
 	SqlPort = "3306"
-	SqlName = "LabMS"
+	SqlName = "labms"
 	SqlParam = "charset=utf8mb4&parseTime=True"
 }

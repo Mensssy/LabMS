@@ -33,7 +33,6 @@ func GenerateToken(userId string, device string) string {
 }
 
 func ParseToken(tokenStr string) (string, error) {
-	println(tokenStr)
 	token, err := jwt.ParseWithClaims(tokenStr, &myClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte(conf.TokenKey), nil
 	})

@@ -12,6 +12,8 @@ import (
 
 func GetRouter() *gin.Engine {
 	r := gin.Default()
+	//最大上传文件大小3MB
+	r.MaxMultipartMemory = 3 << 20
 
 	r.Use(getCors())
 
@@ -33,6 +35,17 @@ func GetRouter() *gin.Engine {
 		user := common.Group("/users")
 		{
 			user.GET("", service.GetUserInfo)
+		}
+
+		invoice := common.Group("/invoices")
+		{
+			invoice.POST("", service.SubmitInvoice)
+			invoice.GET("/:pageNum", service.GetInvoices)
+		}
+		invoiceDoc := common.Group("/invoiceDocs")
+		{
+			invoiceDoc.POST("", service.UploadInvoiceDoc)
+			invoiceDoc.GET("/:invoiceId", service.DownloadInvoiceDoc)
 		}
 
 	}
