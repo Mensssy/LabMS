@@ -87,8 +87,8 @@ func Signin(c *gin.Context) {
 
 	if err != nil {
 		c.JSON(response.Internal_Server_Error, response.Body{
-			Msg:  "signin failed",
-			Data: err.Error(),
+			Msg:  "signin failed, may caused by duplicated userId",
+			Data: nil,
 		})
 	} else {
 		c.JSON(response.OK, response.Body{

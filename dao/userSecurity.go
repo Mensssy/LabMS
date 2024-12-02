@@ -56,18 +56,19 @@ func CreateUser(info model.UserSecurity) error {
 	}
 
 	//创建用户
-	res := db.Create(&model.User{
+	res := tx.Create(&model.User{
 		UserId:   info.UserId,
 		UserName: "BaconSandwich",
+		UserType: "STU",
 	})
 	if res.Error != nil {
-		db.Rollback()
+		tx.Rollback()
 		return res.Error
 	}
 	//创建安全信息
-	res = db.Create(&info)
+	res = tx.Create(&info)
 	if res.Error != nil {
-		db.Rollback()
+		tx.Rollback()
 		return res.Error
 	}
 

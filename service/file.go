@@ -88,7 +88,7 @@ func Download(c *gin.Context, fileType string) {
 
 				//设置请求头
 				c.Header("Content-Type", "application/octet-stream")
-				c.Header("Content-Disposition", "attachment;filename="+"发票编号"+invoiceId+"凭证"+filepath.Ext(fileName))
+				c.Header("Content-Disposition", "attachment;filename="+"invoice"+invoiceId+"Doc"+filepath.Ext(fileName))
 
 				//读取文件
 				c.File(tarFilePath)

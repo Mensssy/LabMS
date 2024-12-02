@@ -17,9 +17,9 @@ func GetRouter() *gin.Engine {
 
 	r.Use(getCors())
 
-	r.POST("/ping", func(c *gin.Context) {
+	r.GET("/ping", func(c *gin.Context) {
 		c.JSON(response.OK, response.Body{
-			Msg:  "U GOT ME!!",
+			Msg:  "FFFFFFFFFUCK!!!",
 			Data: nil,
 		})
 	})

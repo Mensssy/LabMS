@@ -14,15 +14,15 @@ func SaveInvoice(invoice model.Invoice) (int, error) {
 	tx := db.Begin()
 
 	if tx.Error != nil {
-		db.Rollback()
+		tx.Rollback()
 		return 0, tx.Error
 	}
 
 	// 创建发票
-	res := db.Create(&invoice)
+	res := tx.Create(&invoice)
 
 	if res.Error != nil {
-		db.Rollback()
+		tx.Rollback()
 		return 0, res.Error
 	}
 
