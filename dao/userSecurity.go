@@ -59,7 +59,6 @@ func CreateUser(info model.UserSecurity) error {
 	res := tx.Create(&model.User{
 		UserId:   info.UserId,
 		UserName: "BaconSandwich",
-		UserType: "STU",
 	})
 	if res.Error != nil {
 		tx.Rollback()
