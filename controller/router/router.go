@@ -39,15 +39,16 @@ func GetRouter() *gin.Engine {
 
 		invoice := common.Group("/invoices")
 		{
+			invoice.GET("/:pageNum", service.UserGetInvoices)
+			invoice.GET("/state/:invoiceState/:pageNum", service.AdminGetInvoices)
 			invoice.POST("", service.SubmitInvoice)
-			invoice.GET("/:pageNum", service.GetInvoices)
+			invoice.POST("/:state", service.SetInvoiceStat)
 		}
 		invoiceDoc := common.Group("/invoiceDocs")
 		{
 			invoiceDoc.POST("", service.UploadInvoiceDoc)
 			invoiceDoc.GET("/:invoiceId", service.DownloadInvoiceDoc)
 		}
-
 	}
 
 	return r
