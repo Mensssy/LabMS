@@ -3,6 +3,7 @@ package service
 import (
 	"fmt"
 	"strconv"
+	"time"
 
 	"com.mensssy.LabMS/controller/response"
 	"com.mensssy.LabMS/dao"
@@ -129,27 +130,22 @@ func DownloadInvoiceDoc(c *gin.Context) {
 }
 
 type invoiceIds struct {
-	Ids []int `json:"ids"`
+	Ids   []int `json:"ids"`
+	State int   `json:"state"`
 }
 
 func SetInvoiceStat(c *gin.Context) {
-	state, err := strconv.Atoi(c.Param("state"))
-	if err != nil || (state < 1 || state > 6) {
-		c.AbortWithStatusJSON(response.Bad_Request, response.Body{
-			Msg: "wrong or illegal state",
-		})
-		return
-	}
+
 	var ids invoiceIds
-	err = c.ShouldBindJSON(&ids)
-	if err != nil {
+	err := c.ShouldBindJSON(&ids)
+	if err != nil || (ids.State < 1 || ids.State > 6) {
 		c.AbortWithStatusJSON(response.Bad_Request, response.Body{
-			Msg: "wrong or illegal ids",
+			Msg: "wrong or illegal ids or state",
 		})
 		return
 	}
 
-	err = dao.SetInvoiceStat(ids.Ids, state)
+	err = dao.SetInvoiceStat(ids.Ids, ids.State)
 	if err != nil {
 		c.AbortWithStatusJSON(response.Internal_Server_Error, response.Body{
 			Msg: "database error",
@@ -159,5 +155,86 @@ func SetInvoiceStat(c *gin.Context) {
 
 	c.JSON(response.OK, response.Body{
 		Msg: "set invoice state succeeded",
+	})
+}
+
+func UpdateInvoice(c *gin.Context) {
+	var invoice model.Invoice
+	err := c.ShouldBindJSON(&invoice)
+	if err != nil {
+		c.AbortWithStatusJSON(response.Bad_Request, response.Body{
+			Msg: "illegal params such as deliveryDate or state",
+		})
+		return
+	}
+
+	// 状态和送报时间不能改，初始化为零值
+	invoice.State = 0
+	var time time.Time
+	invoice.DeliveryDate = time
+	err = dao.UpdateInvoice(invoice)
+	if err != nil {
+		c.AbortWithStatusJSON(response.Internal_Server_Error, response.Body{
+			Msg: "database error",
+		})
+		return
+	}
+
+	c.JSON(response.OK, response.Body{
+		Msg: "update invoice succeeded",
+	})
+}
+
+func GetBatches(c *gin.Context) {
+	res, err := dao.GetBatches()
+
+	if err != nil {
+		c.AbortWithStatusJSON(response.Internal_Server_Error, response.Body{
+			Msg: "database error",
+		})
+		return
+	}
+
+	c.JSON(response.OK, response.Body{
+		Msg: "get batches succeeded",
+		Data: map[string]interface{}{
+			"batches": res,
+		},
+	})
+}
+
+func GetBatch(c *gin.Context) {
+	batch := c.Param("batchName")
+	groupType := c.Param("groupType")
+	pageNum, err := strconv.Atoi(c.Param("pageNum"))
+	if err != nil {
+		c.AbortWithStatusJSON(response.Bad_Request, response.Body{
+			Msg: "illegal pageNum",
+		})
+		return
+	}
+
+	var res []model.Invoice
+	var totalPageNum int
+	switch groupType {
+	case "name":
+		res, totalPageNum, err = dao.GetBatch(batch, "submitter_name", pageNum, pageSize4Admin)
+	case "type":
+		res, totalPageNum, err = dao.GetBatch(batch, "type", pageNum, pageSize4Admin)
+	}
+
+	if err != nil {
+		c.AbortWithStatusJSON(response.Internal_Server_Error, response.Body{
+			Msg: "database error",
+		})
+		return
+	}
+
+	c.JSON(response.OK, response.Body{
+		Msg: "get batch succeeded",
+		Data: map[string]interface{}{
+			"invoices":     res,
+			"totalPageNum": totalPageNum,
+		},
 	})
 }

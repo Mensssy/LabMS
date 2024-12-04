@@ -3,6 +3,7 @@ package service
 import (
 	"com.mensssy.LabMS/controller/response"
 	"com.mensssy.LabMS/dao"
+	"com.mensssy.LabMS/model"
 	"github.com/gin-gonic/gin"
 )
 
@@ -21,4 +22,31 @@ func GetUserInfo(c *gin.Context) {
 			Msg:  "succeeded",
 		})
 	}
+}
+
+func UpdateUserInfo(c *gin.Context) {
+	var userInfo model.User
+	err := c.ShouldBindJSON(&userInfo)
+
+	userId, _ := c.Get("userId")
+	userInfo.UserId = userId.(string)
+
+	if err != nil {
+		c.AbortWithStatusJSON(response.Bad_Request, response.Body{
+			Msg: "illegal user info structure",
+		})
+		return
+	}
+
+	err = dao.UpdateUserInfo(userInfo)
+	if err != nil {
+		c.AbortWithStatusJSON(response.Bad_Request, response.Body{
+			Msg: "database error",
+		})
+		return
+	}
+
+	c.JSON(response.OK, response.Body{
+		Msg: "update succeeded",
+	})
 }

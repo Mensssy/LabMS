@@ -100,3 +100,59 @@ func SetInvoiceStat(invoiceIds []int, stat int) error {
 
 	return tx.Commit().Error
 }
+
+func UpdateInvoice(invoice model.Invoice) error {
+	db := db.SqlDB
+	tx := db.Begin()
+
+	res := tx.Model(&model.Invoice{}).Where("invoice_id = ?", invoice.InvoiceId).Updates(&invoice)
+	if res.Error != nil {
+		return res.Error
+	}
+
+	return tx.Commit().Error
+}
+
+func GetBatches() ([]string, error) {
+	db := db.SqlDB
+
+	var batches []time.Time
+
+	res := db.Model(&model.Invoice{}).Where("state >= 4").Distinct().Pluck("delivery_date", &batches)
+	dates := make([]string, len(batches))
+
+	//获取批次名列表 即送报日期
+	for v := range batches {
+		dates[v] = batches[v].Format("2006-01-02")
+		if dates[v] == "2004-02-18" {
+			dates = dates[0:v]
+		}
+	}
+	if res.Error != nil {
+		return nil, res.Error
+	}
+
+	return dates, nil
+}
+
+func GetBatch(delivery_date string, groupType string, pageNum int, pageSize int) ([]model.Invoice, int, error) {
+	db := db.SqlDB
+
+	var totalInvoiceNum int64
+	//获取发票总数
+	res := db.Model(&model.Invoice{}).Where("delivery_date = ? AND state >= 4", delivery_date).Count(&totalInvoiceNum)
+	if res.Error != nil {
+		return nil, 0, res.Error
+	}
+	//获取总页数=发票总数/页大小
+	totalPageNum := (totalInvoiceNum / int64(pageSize)) + 1
+
+	var invoices []model.Invoice
+
+	res = db.Model(&model.Invoice{}).Where("delivery_date = ? AND state >= 4", delivery_date).Order(groupType).Offset((pageNum - 1) * pageSize).Limit(pageSize).Find(&invoices)
+
+	if res.Error != nil {
+		return nil, 0, res.Error
+	}
+	return invoices, int(totalPageNum), nil
+}

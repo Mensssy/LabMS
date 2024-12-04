@@ -16,3 +16,16 @@ func GetUserInfo(userId string) (*model.User, error) {
 		return &user, nil
 	}
 }
+
+func UpdateUserInfo(userInfo model.User) error {
+	db := db.SqlDB
+	tx := db.Begin()
+
+	res := tx.Model(&model.User{}).Where("user_id = ?", userInfo.UserId).Updates(&userInfo)
+	if res.Error != nil {
+		tx.Rollback()
+		return res.Error
+	}
+
+	return tx.Commit().Error
+}

@@ -35,18 +35,24 @@ func GetRouter() *gin.Engine {
 		user := common.Group("/users")
 		{
 			user.GET("", service.GetUserInfo)
+			user.POST("", service.UpdateUserInfo)
 		}
 
 		invoice := common.Group("/invoices")
 		{
+			//普通用户操作
 			invoice.GET("/:pageNum", service.UserGetInvoices)
+			invoice.PUT("", service.SubmitInvoice)
+			//管理员操作
+			invoice.POST("", service.UpdateInvoice)
 			invoice.GET("/state/:invoiceState/:pageNum", service.AdminGetInvoices)
-			invoice.POST("", service.SubmitInvoice)
-			invoice.POST("/:state", service.SetInvoiceStat)
+			invoice.POST("/state", service.SetInvoiceStat)
+			invoice.GET("/batches", service.GetBatches)
+			invoice.GET("/batch/:batchName/:groupType/:pageNum", service.GetBatch)
 		}
 		invoiceDoc := common.Group("/invoiceDocs")
 		{
-			invoiceDoc.POST("", service.UploadInvoiceDoc)
+			invoiceDoc.PUT("", service.UploadInvoiceDoc)
 			invoiceDoc.GET("/:invoiceId", service.DownloadInvoiceDoc)
 		}
 	}
