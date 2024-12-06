@@ -13,7 +13,7 @@ import (
 func GetRouter() *gin.Engine {
 	r := gin.Default()
 	//最大上传文件大小3MB
-	r.MaxMultipartMemory = 3 << 20
+	r.MaxMultipartMemory = 20 << 20
 
 	r.Use(getCors())
 
@@ -54,6 +54,8 @@ func GetRouter() *gin.Engine {
 		{
 			invoiceDoc.PUT("", service.UploadInvoiceDoc)
 			invoiceDoc.GET("/:invoiceId", service.DownloadInvoiceDoc)
+			invoiceDoc.DELETE("/:invoiceId", service.DeleteInvoiceDoc)
+			invoiceDoc.HEAD("/:invoiceId", service.IsExistInvoiceDoc)
 		}
 	}
 
@@ -88,7 +90,7 @@ func getCors() gin.HandlerFunc {
 		AllowOrigins:     []string{"*"},
 		AllowMethods:     []string{"PUT", "PATCH", "GET", "POST", "HEAD", "OPTIONS", "DELETE"},
 		AllowHeaders:     []string{"Origin", "Authorization", "Content-Type", "x-token"},
-		ExposeHeaders:    []string{"Content-Length"},
+		ExposeHeaders:    []string{"Content-Length", "Content-Type", "Content-Disposition"},
 		AllowCredentials: true,
 		MaxAge:           12 * time.Hour,
 	})

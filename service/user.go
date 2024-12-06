@@ -30,6 +30,7 @@ func UpdateUserInfo(c *gin.Context) {
 
 	userId, _ := c.Get("userId")
 	userInfo.UserId = userId.(string)
+	userInfo.UserType = ""
 
 	if err != nil {
 		c.AbortWithStatusJSON(response.Bad_Request, response.Body{

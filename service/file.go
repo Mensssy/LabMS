@@ -98,3 +98,84 @@ func Download(c *gin.Context, fileType string) {
 		}
 	}
 }
+
+func Delete(c *gin.Context, fileType string) {
+	switch fileType {
+	case "invoiceDoc":
+		userId, _ := c.Get("userId")
+		invoiceId := c.Param("invoiceId")
+
+		fileDir := invoiceDocPath + userId.(string) + "/"
+		fileNameWithoutSuffix := util.Encrypt(invoiceId)
+
+		// 检查父路径
+		files, err := os.ReadDir(fileDir)
+		if err != nil {
+			c.AbortWithStatusJSON(response.Internal_Server_Error, response.Body{
+				Msg: "user or file not exists",
+			})
+		}
+
+		// 找到该文件
+		for _, file := range files {
+			//系统中的文件名
+			fileName := file.Name()
+			//文件名去掉后缀
+			if fileNameWithoutSuffix == strings.TrimSuffix(fileName, filepath.Ext(fileName)) {
+				tarFilePath := fileDir + fileName
+
+				err := os.Remove(tarFilePath)
+
+				if err != nil {
+					c.AbortWithStatusJSON(response.Internal_Server_Error, response.Body{
+						Msg: "delete file failed",
+					})
+					return
+				}
+
+				c.JSON(response.OK, response.Body{
+					Msg: "delete file succeeded",
+				})
+				return
+			}
+		}
+	}
+}
+
+func IsExist(c *gin.Context, fileType string) {
+	switch fileType {
+	case "invoiceDoc":
+		userId, _ := c.Get("userId")
+		invoiceId := c.Param("invoiceId")
+
+		fileDir := invoiceDocPath + userId.(string) + "/"
+		fileNameWithoutSuffix := util.Encrypt(invoiceId)
+
+		// 检查父路径
+		files, err := os.ReadDir(fileDir)
+		if err != nil {
+			c.AbortWithStatusJSON(response.Internal_Server_Error, response.Body{
+				Msg: "user or file not exists",
+			})
+		}
+		fmt.Println("p1")
+		// 找到该文件
+		for _, file := range files {
+			//系统中的文件名
+			fileName := file.Name()
+			//文件名去掉后缀
+			if fileNameWithoutSuffix == strings.TrimSuffix(fileName, filepath.Ext(fileName)) {
+				//存在该文件
+				fmt.Println("p2")
+				c.JSON(response.OK, response.Body{
+					Msg: "file exists",
+				})
+				return
+			}
+		}
+		c.JSON(response.Not_Found, response.Body{
+			Msg: "file not exists",
+		})
+		return
+	}
+}

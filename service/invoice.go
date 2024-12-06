@@ -129,6 +129,14 @@ func DownloadInvoiceDoc(c *gin.Context) {
 	Download(c, "invoiceDoc")
 }
 
+func DeleteInvoiceDoc(c *gin.Context) {
+	Delete(c, "invoiceDoc")
+}
+
+func IsExistInvoiceDoc(c *gin.Context) {
+	IsExist(c, "invoiceDoc")
+}
+
 type invoiceIds struct {
 	Ids   []int `json:"ids"`
 	State int   `json:"state"`
